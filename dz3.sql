@@ -94,4 +94,17 @@ from ranked_transactions rt
 where rt.row_num = 1;
 
 -----------------------------------------------------------------
-
+with data_1 as (
+	select t.customer_id as cust_id,  DATE_TRUNC('day', TO_DATE(t.transaction_date, 'DD-MM-YYYY')) as date from transaction t
+	join customer c on t.customer_id = c.customer_id
+	order by t.customer_id, date
+),
+data_2 as (
+	select cust_id, max(date) - min(date) as rang 
+	from data_1
+	group by cust_id
+	order by rang desc
+)
+select cust_id from data_2
+where rang = (select MAX(rang) from data_2)
+;
